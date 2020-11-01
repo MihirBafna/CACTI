@@ -1,0 +1,61 @@
+// need array of subarray of gps locations (x,y,z) of each phone in given active location
+  //need number of bluetooth connections that each phone in active area has in corresponding array to locations
+  let locations = [[1,2,3],[4,5,6]]; //testing values for gps
+  let bluetooths = [5,6]; //testing values for bluetooths 
+  let x = 0;
+  let y = 0;
+  let z = 0;
+  let n = locations.length;
+  let m = .7 //scaling constant for hotspot size
+  let currentmaxX = 0;
+  let currentmaxY = 0;
+  let mostx = 0;
+  let mosty = 0;
+  for (let i = 0; i < n; i++){
+      x += locations[i][0]/n;
+      y += locations[i][1]/n;
+      z += locations[i][2]/n;
+      if (locations[i][0]>currentmaxX){
+        locations[i][0] = currentmaxX;
+        mostx = i
+      }
+      if (locations[i][1]>currentmaxY){
+        locations[i][1] = currentmaxY;
+        mosty = i
+      }
+  }
+  let distance = [];
+  for (let i = 0; i<n; i++){
+    distance[i] = Math.sqrt(locations[i][0]^2+locations[i][1]^2);
+  }
+  let size = [currentmaxX*bluetooths[mostx]*m/(2*Math.min(distance)),currentmaxY*bluetooths[mosty]*m/(2*Math.min(distance))];
+  // calculating size of ellipse in x (size[0]) and y (size[1]) directions
+  let area = size[0]*size[1];
+  let critical = 10; //scaling constant for critical levels -- number of people per square distance
+  let colorcriticallevels = [area/critical, area*2/critical, area*3/critical, area*4/critical];
+  let hotspotcolor = [0,0,0];
+  if (colorcriticallevels[0]>n){
+    hotspotcolor[0] = 255-255*n/colorcriticallevels[0];
+    hotspotcolor[1] = 255;
+    hotspotcolor[2] = 255;
+  }
+  if (colorcriticallevels[0]<n & colorcriticallevels[1]>n){
+    hotspotcolor[0] = 0;
+    hotspotcolor[1] = 255;
+    hotspotcolor[2] = 255-255*n/colorcriticallevels[0];
+  }
+  if (colorcriticallevels[1]<n & colorcriticallevels[2]>n){
+    hotspotcolor[0] = 255*n/colorcriticallevels[0];
+    hotspotcolor[1] = 255;
+    hotspotcolor[2] = 0;
+  }
+  if (colorcriticallevels[2]<n & colorcriticallevels[3]>n){
+    hotspotcolor[0] = 255;
+    hotspotcolor[1] = 255-255*n/colorcriticallevels[0];
+    hotspotcolor[2] = 0;
+  }
+  if (colorcriticallevels[3]<n){
+    hotspotcolor[0] = 255-255*n/colorcriticallevels[0];
+    hotspotcolor[1] = 0;
+    hotspotcolor[2] = 0;
+  } // all of these if statments just find the correct hotspot color value in hotspotcolor array
